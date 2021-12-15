@@ -1,5 +1,5 @@
-export default function foo () {
-	return embiggen( 6, 7 );
+export default function foo() {
+  return embiggen(6, 7)
 }
 
 /**
@@ -8,6 +8,6 @@ export default function foo () {
  * @param {number} factor - the factor to embiggen it by
  * @returns {number}
  */
-function embiggen ( num, factor ) {
-	return num * factor;
+export function embiggen(num, factor) {
+  return num * factor
 }

@@ -41,7 +41,8 @@
     "gobble-rollup": "^0.5.0",
     "gobble-rollup-babel": "^0.1.0",
     "mocha": "^2.2.4",
-    "source-map": "^0.1.40"
+    "source-map": "^0.1.40",
+    "suno": "0.0.1"
   },
   "dependencies": {
     "acorn": "^1.1.0",
@@ -50,6 +51,9 @@
     "minimist": "^1.1.1",
     "sander": "^0.3.3",
     "source-map-support": "^0.3.1"
+  },
+  "resolutions": {
+    "graceful-fs": "^4.2.4"
   },
   "files": [
     "src",

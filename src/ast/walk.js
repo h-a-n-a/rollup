@@ -1,59 +1,59 @@
-import { blank } from '../utils/object';
+import { blank } from '../utils/object'
 
-let shouldSkip;
-let shouldAbort;
+let shouldSkip
+let shouldAbort
 
-export default function walk ( ast, { enter, leave }) {
-	shouldAbort = false;
-	visit( ast, null, enter, leave );
+export default function walk(ast, { enter, leave }) {
+  shouldAbort = false
+  visit(ast, null, enter, leave)
 }
 
 let context = {
-	skip: () => shouldSkip = true,
-	abort: () => shouldAbort = true
-};
-
-let childKeys = blank();
-
-let toString = Object.prototype.toString;
-
-function isArray ( thing ) {
-	return toString.call( thing ) === '[object Array]';
+  skip: () => (shouldSkip = true),
+  abort: () => (shouldAbort = true),
 }
+// key value 的 hashmap，用当前 node type 作为 key，value 为当前 node 以对象为 value 的 key 的数组，例如：{ declaration: [], ... }，declaration 为对象，则存入 childKey
+let childKeys = blank()
 
-function visit ( node, parent, enter, leave ) {
-	if ( !node || shouldAbort ) return;
+let toString = Object.prototype.toString
 
-	if ( enter ) {
-		shouldSkip = false;
-		enter.call( context, node, parent );
-		if ( shouldSkip || shouldAbort ) return;
-	}
+function isArray(thing) {
+  return toString.call(thing) === '[object Array]'
+}
+// visitor AcornNode AcornNode EnterCallback LeaveCallback
+function visit(node, parent, enter, leave) {
+  if (!node || shouldAbort) return
 
-	let keys = childKeys[ node.type ] || (
-		childKeys[ node.type ] = Object.keys( node ).filter( key => typeof node[ key ] === 'object' )
-	);
+  if (enter) {
+    shouldSkip = false
+    enter.call(context, node, parent)
+    if (shouldSkip || shouldAbort) return
+  }
 
-	let key, value, i, j;
+  let keys =
+    childKeys[node.type] ||
+    (childKeys[node.type] = Object.keys(node).filter(
+      (key) => typeof node[key] === 'object'
+    ))
 
-	i = keys.length;
-	while ( i-- ) {
-		key = keys[i];
-		value = node[ key ];
+  let key, value, i, j
 
-		if ( isArray( value ) ) {
-			j = value.length;
-			while ( j-- ) {
-				visit( value[j], node, enter, leave );
-			}
-		}
+  i = keys.length
+  while (i--) {
+    key = keys[i]
+    value = node[key]
 
-		else if ( value && value.type ) {
-			visit( value, node, enter, leave );
-		}
-	}
+    if (isArray(value)) {
+      j = value.length
+      while (j--) {
+        visit(value[j], node, enter, leave)
+      }
+    } else if (value && value.type) {
+      visit(value, node, enter, leave)
+    }
+  }
 
-	if ( leave && !shouldAbort ) {
-		leave( node, parent );
-	}
+  if (leave && !shouldAbort) {
+    leave(node, parent)
+  }
 }

@@ -1,43 +1,49 @@
-export default function cjs ( bundle, magicString, { exportMode }) {
-	let intro = `'use strict';\n\n`;
+export default function cjs(bundle, magicString, { exportMode }) {
+  let intro = `'use strict';\n\n`
 
-	// TODO handle empty imports, once they're supported
-	const importBlock = bundle.externalModules
-		.map( module => {
-			let requireStatement = `var ${module.name} = require('${module.id}');`;
+  // TODO handle empty imports, once they're supported
+  const importBlock = bundle.externalModules
+    .map((module) => {
+      let requireStatement = `var ${module.name} = require('${module.id}');`
 
-			if ( module.needsDefault ) {
-				requireStatement += '\n' + ( module.needsNamed ? `var ${module.name}__default = ` : `${module.name} = ` ) +
-					`'default' in ${module.name} ? ${module.name}['default'] : ${module.name};`;
-			}
+      if (module.needsDefault) {
+        requireStatement +=
+          '\n' +
+          (module.needsNamed
+            ? `var ${module.name}__default = `
+            : `${module.name} = `) +
+          `'default' in ${module.name} ? ${module.name}['default'] : ${module.name};`
+      }
 
-			return requireStatement;
-		})
-		.join( '\n' );
+      return requireStatement
+    })
+    .join('\n')
 
-	if ( importBlock ) {
-		intro += importBlock + '\n\n';
-	}
+  if (importBlock) {
+    intro += importBlock + '\n\n'
+  }
 
-	magicString.prepend( intro );
+  magicString.prepend(intro)
 
-	let exportBlock;
-	if ( exportMode === 'default' && bundle.entryModule.exports.default ) {
-		exportBlock = `module.exports = ${bundle.entryModule.getCanonicalName('default')};`;
-	} else if ( exportMode === 'named' ) {
-		exportBlock = bundle.toExport
-			.map( key => {
-				const specifier = bundle.entryModule.exports[ key ];
-				const name = bundle.entryModule.getCanonicalName( specifier.localName );
+  let exportBlock
+  if (exportMode === 'default' && bundle.entryModule.exports.default) {
+    exportBlock = `module.exports = ${bundle.entryModule.getCanonicalName(
+      'default'
+    )};`
+  } else if (exportMode === 'named') {
+    exportBlock = bundle.toExport
+      .map((key) => {
+        const specifier = bundle.entryModule.exports[key]
+        const name = bundle.entryModule.getCanonicalName(specifier.localName)
 
-				return `exports.${key} = ${name};`;
-			})
-			.join( '\n' );
-	}
+        return `exports.${key} = ${name};`
+      })
+      .join('\n')
+  }
 
-	if ( exportBlock ) {
-		magicString.append( '\n\n' + exportBlock );
-	}
+  if (exportBlock) {
+    magicString.append('\n\n' + exportBlock)
+  }
 
-	return magicString;
+  return magicString
 }

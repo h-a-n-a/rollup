@@ -1,46 +1,46 @@
-import { basename } from './utils/path';
-import { writeFile } from 'sander';
-import Bundle from './Bundle';
+import { basename } from './utils/path'
+import { writeFile } from 'sander'
+import Bundle from './Bundle'
 
-let SOURCEMAPPING_URL = 'sourceMa';
-SOURCEMAPPING_URL += 'ppingURL';
+let SOURCEMAPPING_URL = 'sourceMa'
+SOURCEMAPPING_URL += 'ppingURL'
 
-export function rollup ( options ) {
-	if ( !options || !options.entry ) {
-		throw new Error( 'You must supply options.entry to rollup' );
-	}
+export function rollup(options) {
+  if (!options || !options.entry) {
+    throw new Error('You must supply options.entry to rollup')
+  }
 
-	const bundle = new Bundle( options );
+  const bundle = new Bundle(options)
 
-	return bundle.build().then( () => {
-		return {
-			generate: options => bundle.generate( options ),
-			write: options => {
-				if ( !options || !options.dest ) {
-					throw new Error( 'You must supply options.dest to bundle.write' );
-				}
+  return bundle.build().then(() => {
+    return {
+      generate: (options) => bundle.generate(options),
+      write: (options) => {
+        if (!options || !options.dest) {
+          throw new Error('You must supply options.dest to bundle.write')
+        }
 
-				const dest = options.dest;
-				let { code, map } = bundle.generate( options );
+        const dest = options.dest
+        let { code, map } = bundle.generate(options)
 
-				let promises = [];
+        let promises = []
 
-				if ( options.sourceMap ) {
-					let url;
+        if (options.sourceMap) {
+          let url
 
-					if ( options.sourceMap === 'inline' ) {
-						url = map.toUrl();
-					} else {
-						url = `${basename( dest )}.map`;
-						promises.push( writeFile( dest + '.map', map.toString() ) );
-					}
+          if (options.sourceMap === 'inline') {
+            url = map.toUrl()
+          } else {
+            url = `${basename(dest)}.map`
+            promises.push(writeFile(dest + '.map', map.toString()))
+          }
 
-					code += `\n//# ${SOURCEMAPPING_URL}=${url}`;
-				}
+          code += `\n//# ${SOURCEMAPPING_URL}=${url}`
+        }
 
-				promises.push( writeFile( dest, code ) );
-				return Promise.all( promises );
-			}
-		};
-	});
+        promises.push(writeFile(dest, code))
+        return Promise.all(promises)
+      },
+    }
+  })
 }
